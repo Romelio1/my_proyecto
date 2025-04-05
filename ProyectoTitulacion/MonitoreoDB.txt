@@ -1,0 +1,128 @@
+CREATE DATABASE monitorear_titulacion;
+USE monitorear_titulacion;
+
+-- Tabla: Modalidades_de_Graduacion
+CREATE TABLE Modalidades_de_Graduacion (
+    id_modalidad INT AUTO_INCREMENT PRIMARY KEY,
+    nombre_modalidad VARCHAR(50) NOT NULL,
+    descripcion TEXT
+);
+
+-- Tabla: Estudiantes
+CREATE TABLE Estudiantes (
+    id_estudiante INT AUTO_INCREMENT PRIMARY KEY,
+    CI VARCHAR(15) NOT NULL UNIQUE,
+    RU VARCHAR(15) NOT NULL UNIQUE,
+    nombre VARCHAR(50) NOT NULL,
+    apellidos VARCHAR(50) NOT NULL,
+    correo VARCHAR(100),
+    estado ENUM('activo', 'inactivo', 'graduado') NOT NULL,
+    id_modalidad INT NOT NULL,  -- Relación con Modalidades_de_Graduacion
+    FOREIGN KEY (id_modalidad) REFERENCES Modalidades_de_Graduacion(id_modalidad)
+);
+
+
+
+-- Tabla: Etapas_de_Titulacion
+CREATE TABLE Etapas_de_Titulacion (
+    id_etapa INT AUTO_INCREMENT PRIMARY KEY,
+    nombre_etapa VARCHAR(50) NOT NULL,
+    descripcion TEXT,
+    id_modalidad INT NOT NULL,  -- Relación con Modalidades_de_Graduacion
+    FOREIGN KEY (id_modalidad) REFERENCES Modalidades_de_Graduacion(id_modalidad)
+);
+
+-- Tabla: Docentes
+CREATE TABLE Docentes (
+    id_docente INT AUTO_INCREMENT PRIMARY KEY,
+    nombre VARCHAR(50) NOT NULL,
+    apellidos VARCHAR(50) NOT NULL,
+    correo VARCHAR(100)
+);
+
+-- Tabla: Asignacion_Tutor
+CREATE TABLE Asignacion_Tutor (
+    id_asignacion INT AUTO_INCREMENT PRIMARY KEY,
+    id_estudiante INT NOT NULL,
+    id_tutor INT NOT NULL,
+    fecha_asignacion DATE NOT NULL,
+    FOREIGN KEY (id_estudiante) REFERENCES Estudiantes(id_estudiante),
+    FOREIGN KEY (id_tutor) REFERENCES Docentes(id_docente)
+);
+
+
+
+-- Tabla: Pagos_Etapas_Evaluacion
+CREATE TABLE Pagos_Etapas_Evaluacion (
+    id_pago_etapa INT AUTO_INCREMENT PRIMARY KEY,
+    id_estudiante INT NOT NULL,
+    id_etapa INT NOT NULL,
+    monto DECIMAL(10,2) NOT NULL,
+    fecha_pago DATE,
+    FOREIGN KEY (id_estudiante) REFERENCES Estudiantes(id_estudiante),
+    FOREIGN KEY (id_etapa) REFERENCES Etapas_de_Titulacion(id_etapa)
+);
+
+-- Tabla: Monitoreo_Titulacion
+CREATE TABLE Monitoreo_Titulacion (
+    id_monitoreo INT AUTO_INCREMENT PRIMARY KEY,
+    id_estudiante INT NOT NULL,
+    id_etapa INT NOT NULL,
+    fecha_inicio DATE,
+    fecha_fin DATE,
+    estado ENUM('completado', 'en_proceso', 'pendiente') NOT NULL,
+    FOREIGN KEY (id_estudiante) REFERENCES Estudiantes(id_estudiante),
+    FOREIGN KEY (id_etapa) REFERENCES Etapas_de_Titulacion(id_etapa)
+);
+
+
+-- Insertar datos en la tabla Modalidades_de_Graduacion
+INSERT INTO Modalidades_de_Graduacion (nombre_modalidad, descripcion)
+VALUES 
+    ('Modalidad A', 'Descripción de la Modalidad A'),
+    ('Modalidad B', 'Descripción de la Modalidad B'),
+    ('Modalidad C', 'Descripción de la Modalidad C');
+
+-- Insertar datos en la tabla Estudiantes
+INSERT INTO Estudiantes (CI, RU, nombre, apellidos, correo, estado, id_modalidad)
+VALUES
+    ('123456789', 'RU001', 'Juan', 'Pérez', 'juan.perez@correo.com', 'activo', 1),
+    ('987654321', 'RU002', 'Ana', 'González', 'ana.gonzalez@correo.com', 'inactivo', 2),
+    ('456123789', 'RU003', 'Luis', 'Martínez', 'luis.martinez@correo.com', 'graduado', 3);
+
+-- Insertar datos en la tabla Etapas_de_Titulacion
+INSERT INTO Etapas_de_Titulacion (nombre_etapa, descripcion, id_modalidad)
+VALUES
+    ('Etapa 1', 'Descripción de la Etapa 1', 1),
+    ('Etapa 2', 'Descripción de la Etapa 2', 2),
+    ('Etapa 3', 'Descripción de la Etapa 3', 3);
+
+-- Insertar datos en la tabla Docentes
+INSERT INTO Docentes (nombre, apellidos, correo)
+VALUES
+    ('Carlos', 'Ramírez', 'carlos.ramirez@correo.com'),
+    ('María', 'López', 'maria.lopez@correo.com'),
+    ('Pedro', 'Sánchez', 'pedro.sanchez@correo.com');
+
+-- Insertar datos en la tabla Asignacion_Tutor
+INSERT INTO Asignacion_Tutor (id_estudiante, id_tutor, fecha_asignacion)
+VALUES
+    (1, 1, '2024-01-10'),
+    (2, 2, '2024-01-15'),
+    (3, 3, '2024-01-20');
+
+
+
+-- Insertar datos en la tabla Pagos_Etapas_Evaluacion
+INSERT INTO Pagos_Etapas_Evaluacion (id_estudiante, id_etapa, monto, fecha_pago)
+VALUES
+    (1, 1, 100.00, '2024-02-15'),
+    (2, 2, 150.00, '2024-03-20'),
+    (3, 3, 200.00, '2024-04-25');
+
+-- Insertar datos en la tabla Monitoreo_Titulacion
+INSERT INTO Monitoreo_Titulacion (id_estudiante, id_etapa, fecha_inicio, fecha_fin, estado)
+VALUES
+    (1, 1, '2024-02-01', '2024-03-01', 'completado'),
+    (2, 2, '2024-03-01', '2024-04-01', 'en_proceso'),
+    (3, 3, '2024-04-01', '2024-05-01', 'pendiente');
